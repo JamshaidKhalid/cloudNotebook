@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Users = require('../model/Users');
 const { body, validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
 
 
 /**
@@ -35,20 +36,24 @@ router.post('/signup', [
         if (await (Users.findOne({ email: req.body.email }))) {
             return res.status(422).json({ errors: [{ msg: 'User already exists' }] });
         }
-    
-        const user = new Users({
+        
+        //encrypting and hashing the password and hashed password will be stored in database
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+        //creating the user instance
+        const user = await new Users({
             name: req.body.name,
             email: req.body.email,
-            password: req.body.password,
+            password: hashedPassword,
             date: req.body.date
         });
         res.send(user);
-        console.log(user);
         user.save().catch(err => console.log(err));
         
     } catch (e) {
         console.log(e);
-        res.status(500).send(Some error has occured);
+        res.status(500).send("Some error has occured");
     }
 
 
