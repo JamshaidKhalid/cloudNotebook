@@ -1,6 +1,5 @@
 const express = require('express');
 const connectDB = require('./server/database/connection');
-const Users = require('./server/model/Users');
 const app = express();
 const bodyParser = require('body-parser');
 
@@ -12,18 +11,14 @@ const PORT = process.env.PORT || 8080;
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+//conneting DB
 connectDB();
 
-app.post('/', (req, res) => {
-    const user = new Users({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password
-    });
-    res.send(user);
-    console.log(user);
-    user.save()
-});
+
+
+
+app.use('/api/auth', require('./server/routes/auth'));
+// app.use('/api/notes', require('./server/routes/notes'));
 
 
 app.listen(PORT, () => {
