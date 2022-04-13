@@ -4,6 +4,7 @@ const Users = require('../model/Users');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fetchUser = require('../middleware/fetchUser');
 
 const jwt_secret = 'thisismysecretforjsonwebtoken';
 
@@ -11,6 +12,7 @@ const jwt_secret = 'thisismysecretforjsonwebtoken';
  Express validator is used to check the data before sending it to the database
  it is passed as 2nd argument to the post method as an array and the validation methods can be seen at documentaion
  */
+//ROUTE1: creating a user        localhost/api/auth/signup,    NO AUTHENTICATION/LOGIN REQUIRED
 router.post('/signup', [
     body('name').not().isEmpty().withMessage('Name is required').isLength({ min: 3 }),
     body('email').not().isEmpty().withMessage('Email is required').isEmail(),
@@ -78,7 +80,7 @@ router.post('/signup', [
 });
 
 
-
+//ROUTE2: Logging in a user    localhost/api/auth/signin,    NO AUTHENTICATION/LOGIN REQUIRED
 //so finally the following post method will be used to login the user
 router.post('/signin', [
     body('email').not().isEmpty().withMessage('Email is required').isEmail(),
@@ -133,6 +135,24 @@ router.post('/signin', [
 
 });
 
+
+//ROUTE 3: getting details of logged in user    localhost/api/auth/getuser,    AUTHENTICATION/LOGIN REQUIRED
+/**
+ Here fetchUser is a middleware which will be used to check if the user is logged in or not
+ It will provide userID and then async function will be called
+ */
+router.post('/getuser', fetchUser, async (req, res) => {
+    try {
+        //req.id is provided by fetchuser and we are using req.user.id to get userID and then simple
+        const userId = req.user.id;     
+        const user = await Users.findById(userId).select('-password');
+        res.send(user);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal Server Error");
+    }
+
+});
 
 
 module.exports = router;
