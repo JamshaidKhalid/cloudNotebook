@@ -18,7 +18,7 @@ connectDB();
 
 
 app.use('/api/auth', require('./server/routes/auth'));
-// app.use('/api/notes', require('./server/routes/notes'));
+app.use('/api/notes', require('./server/routes/notes'));
 
 
 app.listen(PORT, () => {
