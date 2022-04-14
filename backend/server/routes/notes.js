@@ -57,7 +57,7 @@ router.post('/new-note', fetchUser, [
 
 
 //ROUTE 3: upadating an existing note of the USER WHO IS LOGGED IN    localhost/api/notes/update-note,    AUTHENTICATION/LOGIN REQUIRED
-router.post('/new-note:id', fetchUser, async (req, res) => {
+router.put('/update-note/:id', fetchUser, async (req, res) => {
 
     try {
         const {title, description, tag} = req.body;
@@ -68,9 +68,11 @@ router.post('/new-note:id', fetchUser, async (req, res) => {
          The following lines mean that if title is give in body to be updated then it will update the title using the instance note.title
          similarly for others
          */
-        if(title) {note.title = title;}
-        if(description) {note.description = description;}
-        if(tag) {note.tag = tag;}
+        const newNote = {};
+        if(title) {newNote.title = title;}
+        if(description) {newNote.description = description;}
+        if(tag) {newNote.tag = tag;}
+
 
 
 
@@ -83,13 +85,13 @@ router.post('/new-note:id', fetchUser, async (req, res) => {
         //fetchUser will give the userID of the logged in user and the userID of the note is stored in the userId field of the note
         //we will compare these both
 
-        if(note.userId != req.user.id) {
+        if(note.user.toString() !== req.user.id) {
             return res.status(401).send('Unauthorized');
         }
 
 
         //if the user who is logged in is the owner of the note then it will update the note
-        note.findByIdAndUpdate(req.params.id, note, {new: true});       
+        await Notes.findByIdAndUpdate(req.params.id, {$set: newNote}, {new: true})     
 
 
         res.send('Note updated successfully');
