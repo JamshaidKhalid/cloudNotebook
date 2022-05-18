@@ -7,6 +7,14 @@ exports.update = async (req, res) => {
         const note = await Notes.findById(req.params.id);
 
 
+
+        //if the the requested note doens't exist then it will send an error
+        if(!note) {
+            return res.status(404).send('Note not found');
+        }
+
+
+
         /** 
          The following lines mean that if title is give in body to be updated then it will update the title using the instance note.title
          similarly for others
@@ -18,11 +26,6 @@ exports.update = async (req, res) => {
 
 
 
-
-        //if the the request note doens't exist then it will send an error
-        if(!note) {
-            return res.status(404).send('Note not found');
-        }
 
         //if the user who is logged in is not the owner of the note then it will send an error
         //fetchUser will give the userID of the logged in user and the userID of the note is stored in the userId field of the note
